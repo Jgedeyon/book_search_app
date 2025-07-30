@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Book Search App</title>
+  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@babel/standalone@7.24.0/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const BookContext = React.createContext();
+
+    const BookProvider = ({ children }) => {
+      const [books, setBooks] = React.useState([]);
+      const [favorites, setFavorites] = React.useState([]);
+      const [loading, setLoading] = React.useState(false);
+      const [error, setError] = React.useState(null);
+
+      const searchBooks = async (query, filters = {}) => {
+        setLoading(true);
+        try {
+          const params = new URLSearchParams({ q: query, ...filters });
+          const response = await fetch(`http://localhost:3000/api/books/search?${params}`);
+          const data = await response.json();
+          setBooks(data);
+          setError(null);
+        } catch (err) {
+          setError('Failed to fetch books');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      const addToFavorites = async (book) => {
+        try {
+          await fetch('http://localhost:3000/api/books/favorites', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(book),
+          });
+          setFavorites([...favorites, book]);
+        } catch (err) {
+          setError('Failed to add to favorites');
+        }
+      };
+
+      const removeFromFavorites = async (id) => {
+        try {
+          await fetch(`http://localhost:3000/api/books/favorites/${id}`, {
+            method: 'DELETE',
+          });
+          setFavorites(favorites.filter((book) => book.id !== id));
+        } catch (err) {
+          setError('Failed to remove from favorites');
+        }
+      };
+
+      const fetchFavorites = async () => {
+        try {
+          const response = await fetch('http://localhost:3000/api/books/favorites');
+          const data = await response.json();
+          setFavorites(data);
+        } catch (err) {
+          setError('Failed to fetch favorites');
+        }
+      };
+
+      return (
+        <BookContext.Provider value={{ books, favorites, searchBooks, addToFavorites, removeFromFavorites, fetchFavorites, loading, error }}>
+          {children}
+        </BookContext.Provider>
+      );
+    };
+
+    const SearchBar = () => {
+      const { searchBooks } = React.useContext(BookContext);
+      const [query, setQuery] = React.useState('');
+      const [filters, setFilters] = React.useState({ title: '', author: '', genre: '' });
+
+      const handleSearch = (e) => {
+        e.preventDefault();
+        searchBooks(query, filters);
+      };
+
+      return (
+        <div className="p-4">
+          <form onSubmit={handleSearch} className="flex flex-col gap-4">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search books..."
+              className="p-2 border rounded"
+            />
+            <div className="flex gap-4">
+              <input
+                type="text"
+                value={filters.title}
+                onChange={(e) => setFilters({ ...filters, title: e.target.value })}
+                placeholder="Title"
+                className="p-2 border rounded"
+              />
+              <input
+                type="text"
+                value={filters.author}
+                onChange={(e) => setFilters({ ...filters, author: e.target.value })}
+                placeholder="Author"
+                className="p-2 border rounded"
+              />
+              <input
+                type="text"
+                value={filters.genre}
+                onChange={(e) => setFilters({ ...filters, genre: e.target.value })}
+                placeholder="Genre"
+                className="p-2 border rounded"
+              />
+            </div>
+            <button type="submit" className="bg-blue-500 text-white p-2 rounded">Search</button>
+          </form>
+        </div>
+      );
+    };
+
+    const BookCard = ({ book }) => {
+      const { addToFavorites, removeFromFavorites, favorites } = React.useContext(BookContext);
+      const isFavorite = favorites.some((fav) => fav.id === book.id);
+
+      return (
+        <div className="border p-4 rounded shadow-md">
+          <img src={book.coverImage || 'https://via.placeholder.com/150'} alt={book.title} className="w-32 h-48 object-cover" />
+          <h3 className="font-bold">{book.title}</h3>
+          <p>{book.author}</p>
+          <p>{book.publicationYear}</p>
+          <p className="text-sm">{book.description.slice(0, 100)}...</p>
+          <button
+            onClick={() => (isFavorite ? removeFromFavorites(book.id) : addToFavorites(book))}
+            className={`p-2 rounded ${isFavorite ? 'bg-red-500' : 'bg-green-500'} text-white`}
+          >
+            {isFavorite ? 'Remove from Favorites' : 'Add to Favorites'}
+          </button>
+        </div>
+      );
+    };
+
+    const Home = () => (
+      <div className="container mx-auto">
+        <h1 className="text-3xl font-bold p-4">Book Search</h1>
+        <SearchBar />
+      </div>
+    );
+
+    const SearchResults = () => {
+      const { books, loading, error } = React.useContext(BookContext);
+
+      if (loading) return <p>Loading...</p>;
+      if (error) return <p>{error}</p>;
+
+      return (
+        <div className="container mx-auto p-4">
+          <h2 className="text-2xl font-bold">Search Results</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {books.map((book) => (
+              <BookCard key={book.id} book={book} />
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    const Favorites = () => {
+      const { favorites, fetchFavorites } = React.useContext(BookContext);
+
+      React.useEffect(() => {
+        fetchFavorites();
+      }, []);
+
+      return (
+        <div className="container mx-auto p-4">
+          <h2 className="text-2xl font-bold">Favorites</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {favorites.map((book) => (
+              <BookCard key={book.id} book={book} />
+            ))}
+          </div>
+        </div>
+      );
+    };
+
+    const App = () => {
+      const [currentPage, setCurrentPage] = React.useState('home');
+
+      return (
+        <BookProvider>
+          <nav className="bg-gray-800 text-white p-4">
+            <ul className="flex gap-4">
+              <li><button onClick={() => setCurrentPage('home')}>Home</button></li>
+              <li><button onClick={() => setCurrentPage('results')}>Search Results</button></li>
+              <li><button onClick={() => setCurrentPage('favorites')}>Favorites</button></li>
+            </ul>
+          </nav>
+          {currentPage === 'home' && <Home />}
+          {currentPage === 'results' && <SearchResults />}
+          {currentPage === 'favorites' && <Favorites />}
+        </BookProvider>
+      );
+    };
+
+    ReactDOM.render(<App />, document.getElementById('root'));
+  </script>
+</body>
+</html>
