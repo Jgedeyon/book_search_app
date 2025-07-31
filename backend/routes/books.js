@@ -1,3 +1,8 @@
+const express = require('express');
+const router = express.Router();
+const db = require('../config/db'); // Adjust path if your db.js lives elsewhere
+
+
 router.get('/search', (req, res) => {
   const { q, title, author, genre } = req.query;
 
@@ -26,3 +31,4 @@ router.get('/search', (req, res) => {
     }
   );
 });
+module.exports = router; 
