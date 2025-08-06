@@ -1,36 +1,43 @@
+// routes/books.js
 const express = require('express');
 const router = express.Router();
-const db = require('../config/db'); // Adjust path if your db.js lives elsewhere
-
+const db = require('../config/db');
 
 router.get('/search', async (req, res) => {
-  const { q, title, author, genre } = req.query;
+  const { query, title, author, genre } = req.query;
 
-    console.log("🔍 Backend search route hit:", req.query);
+  let sql = 'SELECT * FROM books WHERE 1=1';
+  const params = [];
 
-  const keyword = `%${q || ''}%`;
-  const titleFilter = `%${title || ''}%`;
-  const authorFilter = `%${author || ''}%`;
-  const genreFilter = `%${genre || ''}%`;
+  if (query) {
+    sql += ' AND (title LIKE ? OR author LIKE ? OR genre LIKE ?)';
+    params.push(`%${query}%`, `%${query}%`, `%${query}%`);
+  }
 
-  const query = `
-    SELECT * FROM books
-    WHERE (title LIKE ? OR author LIKE ? OR genre LIKE ? OR description LIKE ?)
-    AND title LIKE ?
-    AND author LIKE ?
-    AND genre LIKE ?
-  `;
+  if (title) {
+    sql += ' AND title LIKE ?';
+    params.push(`%${title}%`);
+  }
+  if (author) {
+    sql += ' AND author LIKE ?';
+    params.push(`%${author}%`);
+  }
+  if (genre) {
+    sql += ' AND genre LIKE ?';
+    params.push(`%${genre}%`);
+  }
+  console.log('SQL:', sql);
+  console.log('Params:', params);
 
-  db.query(
-    query,
-    [keyword, keyword, keyword, keyword, titleFilter, authorFilter, genreFilter],
-    (err, results) => {
-      if (err) {
-        console.error('Search failed:', err);
-        return res.status(500).json({ error: 'Internal server error' });
-      }
-      res.json(results);
-    }
-  );
+
+  try {
+    const [results] = await db.query(sql, params);
+    res.json({ results });
+  } catch (err) {
+    console.error('Database error:', err.message);
+    console.error('Full error:', err.stack);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 });
-module.exports = router; 
+
+module.exports = router;
