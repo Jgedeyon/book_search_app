@@ -3,8 +3,10 @@ const router = express.Router();
 const db = require('../config/db'); // Adjust path if your db.js lives elsewhere
 
 
-router.get('/search', (req, res) => {
+router.get('/search', async (req, res) => {
   const { q, title, author, genre } = req.query;
+
+    console.log("🔍 Backend search route hit:", req.query);
 
   const keyword = `%${q || ''}%`;
   const titleFilter = `%${title || ''}%`;
