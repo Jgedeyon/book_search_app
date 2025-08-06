@@ -12,9 +12,12 @@ const BookList = () => {
   return (
     <ul>
       {books.map((book) => (
-        <li key={book.id}>
-          <strong>{book.title}</strong> by {book.author}
-        </li>
+        <li key={book.id} className="p-4 border rounded mb-4 shadow">
+  <h3 className="text-lg font-bold">{book.title}</h3>
+  <p><strong>Author:</strong> {book.author}</p>
+  <p><strong>Genre:</strong> {book.genre}</p>
+  <p>{book.description}</p>
+</li>
       ))}
     </ul>
   );

@@ -12,7 +12,7 @@ export const BookProvider = ({ children }) => {
 
   const searchBooks = async ({ query, title, author, genre }) => {
     const params = new URLSearchParams();
-    if (query) params.append('query', query);
+    if (query) params.append('q', query);
     if (title) params.append('title', title);
     if (author) params.append('author', author);
     if (genre) params.append('genre', genre);
@@ -21,8 +21,9 @@ export const BookProvider = ({ children }) => {
     setError(null);
 
     try {
-      const response = await fetch(`${BASE_URL}/books/search?${params}`);
+      const response = await fetch(`${BASE_URL}/books/search?q=Harry+Potter`);
       const data = await response.json();
+      
       setBooks(data);
     } catch (err) {
       setError(err.message || 'Search error');

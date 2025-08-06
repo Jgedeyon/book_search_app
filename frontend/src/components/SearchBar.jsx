@@ -10,7 +10,7 @@ export default function SearchBar({ onSearch }) {
     e.preventDefault();
     console.log("Form submitted with query:", query);
     const fullQuery = `${query} ${title} ${author} ${genre}`.trim();
-    onSearch({ query, title, author, genre }); // Pass query back to parent for API call
+    onSearch({ q: query, title, author, genre }); // Pass query back to parent for API call
   };
 
   return (
