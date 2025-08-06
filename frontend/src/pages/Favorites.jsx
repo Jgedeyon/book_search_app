@@ -1,20 +1,20 @@
-import React, { useEffect, useContext } from 'react';
+import React, { useContext } from 'react';
 import { BookContext } from '../context/BookContext';
 import BookCard from '../components/BookCard';
 
 const Favorites = () => {
-  const { favorites, fetchFavorites } = useContext(BookContext);
-
-  useEffect(() => {
-    fetchFavorites();
-  }, []);
+  const { favorites, removeFavorite } = useContext(BookContext);
 
   return (
     <div className="container mx-auto p-4">
       <h2 className="text-2xl font-bold mb-4">Favorites</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {favorites.map((book) => <BookCard key={book.id} book={book} />)}
-      </div>
+      {favorites.length === 0 ? (
+        <p className="p-4 text-gray-500">No favorites yet.</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {favorites.map((book) => <BookCard key={book.id} book={book} />)}
+        </div>
+      )}
     </div>
   );
 };

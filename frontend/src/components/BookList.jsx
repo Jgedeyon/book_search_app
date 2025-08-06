@@ -10,14 +10,14 @@ const BookList = () => {
   if (!books.length) return <p>No books found.</p>;
 
   return (
-    <ul>
+    <ul className="max-w-2xl mx-auto">
       {books.map((book) => (
         <li key={book.id} className="p-4 border rounded mb-4 shadow">
-  <h3 className="text-lg font-bold">{book.title}</h3>
-  <p><strong>Author:</strong> {book.author}</p>
-  <p><strong>Genre:</strong> {book.genre}</p>
-  <p>{book.description}</p>
-</li>
+          <h3 className="text-lg font-bold">{book.title || 'Untitled'}</h3>
+          <p><strong>Author:</strong> {book.author || 'Unknown'}</p>
+          <p><strong>Genre:</strong> {book.genre || 'N/A'}</p>
+          <p>{book.description || 'No description available'}</p>
+        </li>
       ))}
     </ul>
   );
