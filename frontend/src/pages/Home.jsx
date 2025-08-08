@@ -1,3 +1,4 @@
+// src/pages/Home.jsx
 import React, { useContext } from 'react';
 import SearchBar from '../components/SearchBar';
 import { BookContext } from '../context/BookContext';
@@ -8,14 +9,18 @@ export default function Home() {
   const navigate = useNavigate();
 
   const handleSearch = (params) => {
-    searchBooks(params); // Optional: Use context search if integrating
-    navigate('/results'); // Navigate to Results page
+    searchBooks(params);
+    navigate('/results');
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-center p-6">Book Search</h1>
-      <SearchBar onSearch={handleSearch} />
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300 flex items-center justify-center">
+      <div className="bg-white rounded-lg shadow-lg p-8 max-w-xl w-full">
+        <h1 className="text-3xl font-bold text-center mb-6 text-gray-800">
+          📚 Book Search
+        </h1>
+        <SearchBar onSearch={handleSearch} />
+      </div>
     </div>
   );
 }

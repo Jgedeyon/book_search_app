@@ -1,29 +1,26 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import { BookProvider } from './context/BookProvider';
+// src/App.jsx
+import NavBar from './components/NavBar';
+import { Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
-import Favorites from './pages/Favorites';
-import NotFound from './pages/NotFound';
 import Results from './pages/Results';
+import Favorites from './pages/Favorites';
+import BookProvider from './context/BookProvider';
 
-const App = () => {
-  console.log('✅ App.jsx is executing');
-
+function App() {
   return (
     <BookProvider>
-      <Router>
-        <div className="bg-green-500 text-white p-4 text-center">
-          ✅ App is rendering — test message
-        </div>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/results" element={<Results />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </Router>
+      <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-300">
+        <NavBar />
+        <main className="p-8">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/results" element={<Results />} />
+            <Route path="/favorites" element={<Favorites />} />
+          </Routes>
+        </main>
+      </div>
     </BookProvider>
   );
-};
+}
 
 export default App;

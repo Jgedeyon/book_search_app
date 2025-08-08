@@ -1,3 +1,4 @@
+// src/components/SearchBar.jsx
 import { useState } from 'react';
 
 export default function SearchBar({ onSearch }) {
@@ -8,17 +9,19 @@ export default function SearchBar({ onSearch }) {
 
   const handleSearch = (e) => {
     e.preventDefault();
-    const fullQuery = `${query} ${title} ${author} ${genre}`.trim();
-    const searchParams = { query, title, author, genre }; // Match expected params
-    console.log('Search params submitted:', searchParams); // Debug log
-    onSearch(searchParams); // Pass all params to parent
+    const searchParams = { query, title, author, genre };
+    console.log('Search params submitted:', searchParams);
+    onSearch(searchParams);
   };
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
-      <form onSubmit={handleSearch} className="flex flex-col gap-4">
+    <div className="max-w-2xl mx-auto">
+      <form
+        onSubmit={handleSearch}
+        className="flex flex-col gap-6 bg-white p-6 rounded-lg shadow-md"
+      >
         <input
-          className="p-2 border rounded"
+          className="p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
           placeholder="Search books..."
           value={query}
           onChange={(e) => setQuery(e.target.value)}
@@ -26,19 +29,19 @@ export default function SearchBar({ onSearch }) {
 
         <div className="flex flex-col md:flex-row gap-4">
           <input
-            className="p-2 border rounded"
+            className="p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 flex-1"
             placeholder="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
           />
           <input
-            className="p-2 border rounded"
+            className="p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 flex-1"
             placeholder="Author"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
           />
           <input
-            className="p-2 border rounded"
+            className="p-3 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400 flex-1"
             placeholder="Genre"
             value={genre}
             onChange={(e) => setGenre(e.target.value)}
@@ -47,9 +50,9 @@ export default function SearchBar({ onSearch }) {
 
         <button
           type="submit"
-          className="bg-blue-500 hover:bg-blue-600 transition text-white p-2 rounded text-lg"
+          className="bg-blue-600 hover:bg-blue-700 transition-colors text-white py-3 px-6 rounded-md text-lg font-semibold shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
         >
-          Search
+          🔍 Search
         </button>
       </form>
     </div>
