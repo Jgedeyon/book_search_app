@@ -1,43 +1,53 @@
-// routes/books.js
 const express = require('express');
-const router = express.Router();
+const router = express.Router(); // ✅ This was missing
 const db = require('../config/db');
+const bookController = require('../controllers/bookController');
 
+// 🔍 Search books with filters
 router.get('/search', async (req, res) => {
   const { query, title, author, genre } = req.query;
 
-  let sql = 'SELECT * FROM books WHERE 1=1';
+  let sql = `
+    SELECT id, title, author, genre, year AS publicationYear, description, cover_url AS coverImage
+    FROM books
+    WHERE 1=1
+  `;
   const params = [];
 
   if (query) {
-    sql += ' AND (title LIKE ? OR author LIKE ? OR genre LIKE ?)';
-    params.push(`%${query}%`, `%${query}%`, `%${query}%`);
+    const q = `%${query.trim().toLowerCase()}%`;
+    sql += ' AND (LOWER(title) LIKE ? OR LOWER(author) LIKE ? OR LOWER(genre) LIKE ?)';
+    params.push(q, q, q);
   }
-
   if (title) {
-    sql += ' AND title LIKE ?';
-    params.push(`%${title}%`);
+    sql += ' AND LOWER(title) LIKE ?';
+    params.push(`%${title.trim().toLowerCase()}%`);
   }
   if (author) {
-    sql += ' AND author LIKE ?';
-    params.push(`%${author}%`);
+    sql += ' AND LOWER(author) LIKE ?';
+    params.push(`%${author.trim().toLowerCase()}%`);
   }
   if (genre) {
-    sql += ' AND genre LIKE ?';
-    params.push(`%${genre}%`);
+    sql += ' AND LOWER(genre) LIKE ?';
+    params.push(`%${genre.trim().toLowerCase()}%`);
   }
-  console.log('SQL:', sql);
-  console.log('Params:', params);
-
 
   try {
     const [results] = await db.query(sql, params);
     res.json({ results });
   } catch (err) {
     console.error('Database error:', err.message);
-    console.error('Full error:', err.stack);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
+
+// 📚 Get all books
+router.get('/', bookController.getBooks);
+
+// ➕ Add a new book
+router.post('/', bookController.saveBook);
+
+// ❌ Delete a book by ID
+router.delete('/:id', bookController.deleteBook);
 
 module.exports = router;
